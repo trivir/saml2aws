@@ -33,6 +33,7 @@ type CommonFlags struct {
 	DisableRememberDevice bool
 	DisableSessions       bool
 	Prompter              string
+	NetIQSamlURL          string
 }
 
 // LoginExecFlags flags for the Login / Exec commands
@@ -117,6 +118,10 @@ func ApplyFlagOverrides(commonFlags *CommonFlags, account *cfg.IDPAccount) {
 	}
 	if commonFlags.Prompter != "" {
 		account.Prompter = commonFlags.Prompter
+	}
+
+	if commonFlags.NetIQSamlURL != "" {
+		account.NetIQSamlURL = commonFlags.NetIQSamlURL
 	}
 
 	// select the prompter

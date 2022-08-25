@@ -11,4 +11,5 @@ type LoginDetails struct {
 	URL               string
 	StateToken        string // used by Okta
 	OktaSessionCookie string // used by Okta
+	NetIQSamlURL      string // used by NetIQ
 }

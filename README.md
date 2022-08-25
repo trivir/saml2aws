@@ -185,6 +185,8 @@ Commands:
         --cache-file=CACHE-FILE    The location of the SAML cache file (env: SAML2AWS_SAML_CACHE_FILE)
         --disable-sessions         Do not use Okta sessions. Uses Okta sessions by default. (env: SAML2AWS_OKTA_DISABLE_SESSIONS)
         --disable-remember-device  Do not remember Okta MFA device. Remembers MFA device by default. (env: SAML2AWS_OKTA_DISABLE_REMEMBER_DEVICE)
+        --netiq-saml-url=NETIQ-SAML-URL  
+                                   NetIQ Intersite Transfer Service URL (env: SAML2AWS_NETIQ_SAML_URL)
 
   login [<flags>]
     Login to a SAML 2.0 IDP and convert the SAML assertion to an STS token.
@@ -203,6 +205,8 @@ Commands:
         --cache-file=CACHE-FILE  The location of the SAML cache file (env: SAML2AWS_SAML_CACHE_FILE)
         --disable-sessions         Do not use Okta sessions. Uses Okta sessions by default. (env: SAML2AWS_OKTA_DISABLE_SESSIONS)
         --disable-remember-device  Do not remember Okta MFA device. Remembers MFA device by default. (env: SAML2AWS_OKTA_DISABLE_REMEMBER_DEVICE)
+        --netiq-saml-url=NETIQ-SAML-URL  
+                                 NetIQ Intersite Transfer Service URL (env: SAML2AWS_NETIQ_SAML_URL)
 
   exec [<flags>] [<command>...]
     Exec the supplied command with env vars from STS token.

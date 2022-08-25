@@ -53,6 +53,8 @@ func PromptForConfigurationDetails(idpAccount *cfg.IDPAccount) error {
 	case "AzureAD":
 		idpAccount.AppID = prompter.String("App ID", idpAccount.AppID)
 		log.Println("")
+	case "NetIQ":
+		idpAccount.NetIQSamlURL = prompter.String("NetIQ Saml URL", idpAccount.NetIQSamlURL)
 	}
 
 	return nil

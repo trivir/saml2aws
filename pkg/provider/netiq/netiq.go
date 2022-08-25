@@ -37,9 +37,14 @@ func New(idpAccount *cfg.IDPAccount, mfa string) (*Client, error) {
 
 }
 
-const samlURL = "/nidp/saml2/idpsend?PID=STSPv8a5kc"
-
 func (nc *Client) Authenticate(loginDetails *creds.LoginDetails) (string, error) {
+	var samlURL string
+	if loginDetails.NetIQSamlURL == "" {
+		samlURL = "/nidp/saml2/idpsend?PID=STSPv8a5kc"
+		logger.Debugf("No NetIQSamlURL defined, using the original constant of '%s'", samlURL)
+	} else {
+		samlURL = loginDetails.NetIQSamlURL
+	}
 	req, err := http.NewRequest("GET", loginDetails.URL+samlURL, nil)
 	if err != nil {
 		return "", errors.Wrap(err, "Error building request")
@@ -70,6 +75,15 @@ func (nc *Client) follow(req *http.Request, loginDetails *creds.LoginDetails) (s
 		return nc.follow(newReq, loginDetails)
 	} else if resourceURL, isWinLocHref := extractWinLocHrefURL(doc); isWinLocHref {
 		newReq, err := buildGetToContentRequest(resourceURL)
+		if err != nil {
+			return "", errors.Wrap(err, "Error building request")
+		}
+		return nc.follow(newReq, loginDetails)
+	} else if form, isFormZeroSubmit := extractFormZeroSubmit(doc); isFormZeroSubmit {
+		if !strings.HasPrefix(form.URL, "http://") && !strings.HasPrefix(form.URL, "https://") {
+			form.URL = loginDetails.URL + form.URL
+		}
+		newReq, err := form.BuildRequest()
 		if err != nil {
 			return "", errors.Wrap(err, "Error building request")
 		}
@@ -139,6 +153,33 @@ func extractWinLocHrefURL(doc *goquery.Document) (string, bool) {
 	}
 }
 
+func extractFormZeroSubmit(doc *goquery.Document) (*page.Form, bool) {
+	script := doc.Find("body script:contains('document.forms[0].submit()')")
+	if script.Size() != 1 {
+		return nil, false
+	}
+	forms := doc.Find("body form")
+	if forms.Size() != 1 {
+		return nil, false
+	}
+	action, exists := forms.First().Attr("action")
+	if !exists {
+		return nil, false
+	}
+	logDocDetected("formZeroSubmit", action)
+	form := &page.Form{
+		URL:    action,
+		Method: "POST",
+		Values: &url.Values{},
+	}
+	forms.First().Find("input[type=\"hidden\"]").Each(func(i int, s *goquery.Selection) {
+		fieldName, _ := s.Attr("name")
+		fieldValue, _ := s.Attr("value")
+		form.Values.Set(fieldName, fieldValue)
+	})
+	return form, true
+}
+
 func extractIDPLoginPass(doc *goquery.Document) (*page.Form, bool) {
 	idpPoginForm := doc.Find("body form:has(input[name=\"Ecom_Password\"])")
 	if idpPoginForm.Size() != 1 {
@@ -154,6 +195,11 @@ func extractIDPLoginPass(doc *goquery.Document) (*page.Form, bool) {
 		Method: "POST",
 		Values: &url.Values{},
 	}
+	idpPoginForm.Find("input[type=\"hidden\"]").Each(func(i int, s *goquery.Selection) {
+		fieldName, _ := s.Attr("name")
+		fieldValue, _ := s.Attr("value")
+		form.Values.Set(fieldName, fieldValue)
+	})
 	return form, true
 }
 

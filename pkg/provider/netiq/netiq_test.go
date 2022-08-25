@@ -138,7 +138,9 @@ func TestExtractIDPLoginPassPositive(t *testing.T) {
 	expectedForm := &page.Form{
 		URL:    "https://login.authbridge.somegroup.com/nidp/app/login?sid=0&sid=0",
 		Method: "POST",
-		Values: &url.Values{},
+		Values: &url.Values{
+			"option": {"credential"},
+		},
 	}
 
 	//when
@@ -173,7 +175,9 @@ func TestExtractPrivilegedIDPLoginPassPositive(t *testing.T) {
 	expectedForm := &page.Form{
 		URL:    "https://login.authbridge.somegroup.com/nidp/app/login?sid=0&sid=0",
 		Method: "POST",
-		Values: &url.Values{},
+		Values: &url.Values{
+			"option": {"credential"},
+		},
 	}
 
 	//when

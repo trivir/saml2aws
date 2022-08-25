@@ -58,12 +58,14 @@ type IDPAccount struct {
 	DisableRememberDevice bool   `ini:"disable_remember_device"` // used by Okta
 	DisableSessions       bool   `ini:"disable_sessions"`        // used by Okta
 	Prompter              string `ini:"prompter"`
+	NetIQSamlURL          string `ini:"netiq_saml_url"`
 }
 
 func (ia IDPAccount) String() string {
 	var appID string
 	var policyID string
 	var oktaCfg string
+	var netIqSamlUrl string
 	switch ia.Provider {
 	case "OneLogin":
 		appID = fmt.Sprintf(`
@@ -78,9 +80,12 @@ func (ia IDPAccount) String() string {
 		oktaCfg = fmt.Sprintf(`
   DisableSessions: %v
   DisableRememberDevice: %v`, ia.DisableSessions, ia.DisableSessions)
+	case "NetIQ":
+		netIqSamlUrl = fmt.Sprintf(`
+  NetIQSamlURL: %s`, ia.NetIQSamlURL)
 	}
 
-	return fmt.Sprintf(`account {%s%s%s
+	return fmt.Sprintf(`account {%s%s%s%s
   URL: %s
   Username: %s
   Provider: %s
@@ -91,7 +96,7 @@ func (ia IDPAccount) String() string {
   Profile: %s
   RoleARN: %s
   Region: %s
-}`, appID, policyID, oktaCfg, ia.URL, ia.Username, ia.Provider, ia.MFA, ia.SkipVerify, ia.AmazonWebservicesURN, ia.SessionDuration, ia.Profile, ia.RoleARN, ia.Region)
+}`, appID, policyID, oktaCfg, netIqSamlUrl, ia.URL, ia.Username, ia.Provider, ia.MFA, ia.SkipVerify, ia.AmazonWebservicesURN, ia.SessionDuration, ia.Profile, ia.RoleARN, ia.Region)
 }
 
 // Validate validate the required / expected fields are set
